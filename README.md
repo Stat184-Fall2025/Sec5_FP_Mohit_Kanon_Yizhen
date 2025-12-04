@@ -17,4 +17,4 @@ Repo Structure
 Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
 
 Authors
-Give information about who are the authors of the project and how people can get in touch if they have questions.
+Authors: Mohit, Yizhen, Kanon(mkn5394@psu.edu, yzj5267@psu.edu, kft5329@psu.edu)
