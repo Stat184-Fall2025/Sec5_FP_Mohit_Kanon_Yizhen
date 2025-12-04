@@ -1,5 +1,5 @@
-Project Title
-Write a 1-2 sentences that quickly and clearly convey what your repo is for.
+Project title 
+Our repo is to show viewers how our project works, and the base code that was used to to create it. We will show others how we created our code that shows how stocks change over time through data visualizations. 
 
 Overview
 Expand on those introductory sentences with a brief but informative description of your project's purpose and goals. This section should help visitors decide whether they should dig deeper into your repo/project.
