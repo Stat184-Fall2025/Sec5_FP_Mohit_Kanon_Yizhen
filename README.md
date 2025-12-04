@@ -11,8 +11,10 @@ This is optional but highly recommended. You'll include one interesting insight 
 ・https://www.quantmod.com/examples/intro/
 ・https://finance.yahoo.com/
 
-## Current Plan
-Provide some information about what you intend to doe with the project. You can additionally refer the visitor to your detailed plan document.
+Current Plan
+Each members will write codes using datas about stock from the website and make a presentation. Repo Structure Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
+Repo Structure
+Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
 
 ## Repo Structure
 MLA9.csl --- citations 
