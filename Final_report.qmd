@@ -1,0 +1,239 @@
+---
+title: "Analyzing Stocks Using the Moving Average Crossover Strategy"
+author: "Mohit Naveen and Kanon Tsuda"
+date: "December 17, 2024"
+format:
+  pdf:
+    toc: true
+    number-sections: true
+bibliography: references.bib
+csl: apa.csl
+---
+
+# Introduction
+Moving averages are a common tool in stock analysis that help identify trends by smoothing out daily price changes. Instead of looking at how a stock jumps up and down every single day, moving averages calculate the average price over a set period, like 50 or 200 days, which makes it easier to see the overall direction a stock is heading. This helps filter out the "noise" of daily trading and shows whether a stock is generally trending upward, downward, or staying flat.
+
+For this project, we're analyzing two major technology companies: NVIDIA Corporation (NVDA) and Sony Group Corporation (SONY). NVIDIA has become well-known for making graphics processing units (GPUs) that are now heavily used in artificial intelligence applications, while Sony operates across electronics, gaming, and entertainment. We're using two specific moving averages: the 50-day simple moving average (SMA) to track intermediate trends and the 200-day SMA to show longer-term patterns. When the 50-day average crosses above the 200-day average, it suggests the stock is gaining momentum. When it crosses below, it suggests momentum might be slowing down.
+
+Our research question is: How do the 50-day and 200-day simple moving averages show the stock price trends for NVIDIA and Sony from 2020 to now, and what do these patterns tell us about how each company has been performing in the market?
+
+# Data Provenance
+
+## Data Source and Collection
+
+Our data was obtained from Yahoo Finance through the `quantmod` package in R. Yahoo Finance aggregates stock market data from major exchanges and provides free access for research and analysis purposes.
+
+**Who:** Yahoo Finance, collects and distributes financial market data from stock exchanges worldwide.
+
+**What:** Daily stock price data for NVIDIA Corporation (NVDA) and Sony Group Corporation (SONY), including open, high, low, and close prices, as well as trading volume for each trading day.
+
+**When:** Data spans from January 1, 2020 to December 17, 2024, covering  1,240 trading days over nearly five years.
+
+**Where:** Data originates from the NASDAQ stock exchange where both NVIDIA and Sony are listed and actively traded.
+
+**Why:** Yahoo Finance provides this data to enable transparent market information for investors, analysts, researchers, and the general public to make informed decisions.
+
+**How:** Stock prices are recorded electronically during regular trading hours (9:30 AM - 4:00 PM EST) on each trading day. Exchange systems capture every transaction, and Yahoo Finance aggregates this data. 
+
+## FAIR Principles Assessment
+
+**Findable:** The data is highly findable through Yahoo Finance's public website (finance.yahoo.com) using standardized ticker symbols (NVDA for NVIDIA, SONY for Sony). The quantmod package provides a consistent programmatic method to retrieve the data. 
+
+**Accessible:** Data is freely accessible to anyone with internet access. No authentication, registration, or payment is required for historical stock data. Multiple access methods are available including the Yahoo Finance web interface, their API, and R packages like quantmod. The data format is standardized and machine-readable.
+
+**Interoperable:** Data is provided in standard financial data formats compatible with multiple programming languages including R, Python, MATLAB, and Excel. The xts (extensible time series) format used by quantmod is widely supported across data analysis platforms. Standard date formats and numerical representations ensure compatibility.
+
+**Reusable:** Data includes clear metadata describing each variable (Date, Open, High, Low, Close, Volume). The data can be freely used for research, educational purposes, and personal analysis with proper attribution to Yahoo Finance as the data source. Historical data remains consistent and can be retrieved repeatedly for reproducibility.
+
+**Overall Assessment:** The dataset satisfies FAIR principles very well, making it highly suitable for reproducible research and educational analysis.
+
+## CARE Principles Assessment
+
+------
+
+# Variables and Attributes
+
+## Original Variables from Dataset
+
+Our analysis uses the following original attributes from the Yahoo Finance dataset:
+
+- **Date** (Date format): Trading date for each observation, representing when the market was open for trading. Excludes weekends and market holidays.
+
+- **Close** (Numeric, USD): Closing price at the end of each trading day at 4:00 PM EST. This is our primary variable of interest as it represents the final price between buyers and sellers for that day.
+
+## Derived Variables Created for Analysis
+
+We created the following variables to support our moving average analysis:
+
+- **SMA_50_day** (Numeric, USD): 50-day simple moving average of closing prices, calculated by summing the closing prices of the last 50 trading days and dividing by 50. This represents the intermediate-term trend and responds more quickly to recent price changes. The calculation uses the `SMA()` function from the TTR package.
+
+- **SMA_200_day** (Numeric, USD): 200-day simple moving average of closing prices, calculated by summing the closing prices of the last 200 trading days and dividing by 200. This represents the long-term trend and provides a broader view of market direction. Because it uses more data points, it is slower to react to price changes but gives a more stable trend indicator.
+
+- **Status** (Categorical: "Bullish" or "Bearish"): Market status indicator created by comparing the two moving averages at each point in time. When SMA_50_day > SMA_200_day, the status is classified as "Bullish," indicating that short-term momentum exceeds long-term momentum and suggesting upward price pressure. When SMA_50_day < SMA_200_day, the status is "Bearish," indicating that short-term momentum is below long-term momentum and suggesting downward pressure or weakening trends.
+
+These derived attributes allow us to systematically identify trend direction, momentum changes, and potential turning points in the stock prices over time.
+
+# Analysis
+
+## NVIDIA Stock Analysis
+
+```{r nvidia-data-prep}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Code Chunk Header
+# Primary Author: Mohit Naveen
+# Reviewer: Kanon Tsuda
+# Style Guide: Tidyverse Style
+
+library(quantmod)
+library(dplyr)
+library(knitr)
+
+# Get NVIDIA stock data
+getSymbols("NVDA", from = "2020-01-01", to = Sys.Date())
+
+# Calculate moving averages
+NVDA$SMA50 <- SMA(Cl(NVDA), n = 50)
+NVDA$SMA200 <- SMA(Cl(NVDA), n = 200)
+
+# Create tidy data frame
+nvda_df <- data.frame(
+  Date = index(NVDA),
+  Price = as.numeric(Cl(NVDA)),
+  SMA_50_day = as.numeric(NVDA$SMA50),
+  SMA_200_day = as.numeric(NVDA$SMA200)
+) %>%
+  na.omit() %>%
+  mutate(Status = ifelse(SMA_50_day > SMA_200_day, "Bullish", "Bearish"))
+```
+
+### Price Trend Visualization
+
+---------
+### Summary Tables
+
+```{r nvidia-sample-table}
+#| echo: false
+#| tbl-cap: "NVIDIA stock prices and moving averages sampled every 50 trading days to show progression over time"
+
+# Code Chunk Header
+# Primary Author: Mohit Naveen
+# Reviewer: Kanon [LastName]
+
+sample_table <- nvda_df %>%
+  slice(seq(1, n(), by = 50)) %>%
+  mutate(
+    Price = round(Price, 2),
+    SMA_50_day = round(SMA_50_day, 2),
+    SMA_200_day = round(SMA_200_day, 2)
+  )
+
+kable(sample_table,
+      col.names = c("Date", "Close Price ($)", "50-Day SMA ($)", 
+                    "200-Day SMA ($)", "Market Status"),
+      align = c("l", "r", "r", "r", "c"),
+      row.names = FALSE)
+```
+
+Table 1 presents a sample of NVIDIA's stock data at approximately 50-day intervals throughout the analysis period, providing a snapshot of how prices and moving averages evolved over time. The table clearly illustrates NVIDIA's dramatic price appreciation, with the closing price increasing from around $40-50 in early 2020 to well over $100 by 2024. The Status column predominantly shows "Bullish" classifications, indicating that for most of the analysis period, the 50-day moving average remained above the 200-day moving average. This persistent bullish status reflects NVIDIA's strong market performance and investor confidence during the technology boom, particularly in the AI sector.
+
+We can observe that both moving averages generally trend upward throughout the period, though the 200-day SMA shows a smoother, more gradual increase compared to the 50-day SMA, which responds more quickly to price changes. The periods where these indicators diverge significantly suggest times of accelerating momentum, while periods where they converge might indicate consolidation or potential trend reversals.
+
+```{r nvidia-recent-table}
+#| echo: false
+#| tbl-cap: "NVIDIA's most recent 10 trading days showing current market conditions"
+
+# Code Chunk Header
+# Primary Author: Mohit Naveen
+# Reviewer: Kanon Tsuda
+
+recent_table <- nvda_df %>%
+  tail(10) %>%
+  mutate(
+    Price = round(Price, 2),
+    SMA_50_day = round(SMA_50_day, 2),
+    SMA_200_day = round(SMA_200_day, 2)
+  )
+
+kable(recent_table,
+      col.names = c("Date", "Close Price ($)", "50-Day SMA ($)", 
+                    "200-Day SMA ($)", "Market Status"),
+      align = c("l", "r", "r", "r", "c"),
+      row.names = FALSE)
+```
+
+Table 2 shows the most recent 10 trading days for NVIDIA as of December 2025. The current data reveals that NVIDIA continues to trade in bullish territory with the 50-day moving average substantially above the 200-day moving average. The closing price in recent days shows some volatility around the $170-180 range, which is typical for a stock that has experienced significant appreciation. The 50-day SMA hovering around the current price levels suggests that recent trading has been consolidating around these values, while the 200-day SMA at lower levels indicates the strong upward trajectory over the longer term. The consistent "Bullish" status across all recent trading days confirms that NVIDIA maintains positive market momentum heading into year-end 2025.
+
+## Sony Stock Analysis
+
+---- complete this and the ones aboce
+```{r sony-data-prep}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Code Chunk Header
+# Primary Author: Kanon Tsuda
+# Reviewer: Mohit Naveen
+# Style Guide: Tidyverse Style 
+
+# Get Sony stock data
+
+```
+
+### Price Trend Visualization
+
+![Sony stock price with 50-day and 200-day moving averages from 2020 to present. [add detailed description here following the NVIDIA example].](sony/sony_chart.png){#fig-sony}
+
+[write 2-3 paragraphs describing Sony's chart, identifying trends, crossovers, and what the moving averages reveal about Sony's performance]
+
+### Summary Tables
+
+
+# Discussion
+
+## Comparing NVIDIA and Sony Moving Average Patterns
+
+## Interpretation and Limitations
+
+# Conclusion
+
+- Main findings about NVIDIA and Sony
+- What you learned about moving averages
+- Future analysis directions
+
+# Author Contributions
+
+**Mohit Naveen:**
+- Conducted NVIDIA stock analysis including data collection and processing
+- Created all NVIDIA visualizations (chart and tables)
+- Wrote NVIDIA analysis narrative and interpretation
+- Reviewed Sony analysis code
+
+**Kanon Tsuda:**
+- Conducted Sony stock analysis including data collection and processing
+- Created all Sony visualizations (chart and tables)
+- Wrote Sony analysis narrative and interpretation
+- Reviewed NVIDIA analysis code
+
+**Joint Contributions:**
+- Both team members collaborated on FAIR/CARE principles assessment
+- Both contributed to Discussion section comparing the two stocks
+- Both contributed to Conclusion section
+- Both participated in code review process
+- Both contributed to overall document structure and organization
+
+# References
+
+::: {#refs}
+:::
+
+# Code Appendix
+
+```{r code-appendix}
+#| ref.label: knitr::all_labels()
+#| echo: true
+#| eval: false
+```
