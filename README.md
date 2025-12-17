@@ -14,9 +14,10 @@ Here we can see an rough outline of how our moving average crossover would look 
 ・https://finance.yahoo.com/
 ・https://www.schwab.com/learn/story/understanding-simple-moving-average-crossovers
 
-## Current Plan
-Each members will write code using datas about a stock of their choice, and provide background information. They will apply the simple moving average crossover to it, and present their findings, and briefly explain the data that they display. 
-
+Current Plan
+Each members will write codes using datas about stock from the website and make a presentation. Repo Structure Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
+Repo Structure
+Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
 
 ## Repo Structure
 - MLA9.csl --- citations 
