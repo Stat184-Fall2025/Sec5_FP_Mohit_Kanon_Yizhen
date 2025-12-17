@@ -1,4 +1,4 @@
-# Using R to understand Stock Price Changes
+# Analyzing Stocks Using the Moving Average Crossover Strategy
 Our repo is to show viewers how our project works, and the base code that was used to to create it. We will show others how we created our code that shows how stocks change over time through data visualizations, and we will present our findings on the Moving Average Crossover technique. 
 
 ## Overview
