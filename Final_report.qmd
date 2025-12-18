@@ -120,7 +120,7 @@ nvda_df <- data.frame(
 
 # Code Chunk Header
 # Primary Author: Mohit Naveen
-# Reviewer: Kanon [LastName]
+# Reviewer: Kanon Tsuda
 
 sample_table <- nvda_df %>%
   slice(seq(1, n(), by = 50)) %>%
@@ -167,8 +167,6 @@ kable(recent_table,
 Table 2 shows the most recent 10 trading days for NVIDIA as of December 2025. The current data reveals that NVIDIA continues to trade in bullish territory with the 50-day moving average substantially above the 200-day moving average. The closing price in recent days shows some volatility around the $170-180 range, which is typical for a stock that has experienced significant appreciation. The 50-day SMA hovering around the current price levels suggests that recent trading has been consolidating around these values, while the 200-day SMA at lower levels indicates the strong upward trajectory over the longer term. The consistent "Bullish" status across all recent trading days confirms that NVIDIA maintains positive market momentum heading into year-end 2025.
 
 ## Sony Stock Analysis
-
----- complete this and the ones aboce
 ```{r sony-data-prep}
 #| echo: false
 #| message: false
@@ -179,9 +177,26 @@ Table 2 shows the most recent 10 trading days for NVIDIA as of December 2025. Th
 # Reviewer: Mohit Naveen
 # Style Guide: Tidyverse Style 
 
-# Get Sony stock data
+library(quantmod)
+library(dplyr)
+library(knitr)
 
-```
+# Get Sony stock data
+getSymbols("SONY", from = "2020-01-01", to = Sys.Date())
+
+#Calculate moving averages
+SONY$SMA50 <- SMA(Cl(SONY), n = 50)
+SONY$SMA200 <- SMA(Cl(SONY), n = 200)
+
+#Create tidy data frame
+sony_df <- data.frame(
+  Date = index(SONY),
+  Price = as.numeric(Cl(SONY)),
+  SMA_50_day = as.numeric(SONY$SMA50),
+  SMA_200_day = as.numeric(SONY$SMA200)
+) %>%
+  na.omit() %>%
+  mutate(Status = ifelse(SMA_50_day > SMA_200_day, "Bullish", "Bearish"))
 
 ### Price Trend Visualization
 
